@@ -5,6 +5,7 @@
     <title>Hand Tracking with A-Frame and Three.js</title>
     <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
     <script src="https://threejs.org/build/three.js"></script>
+    <meta http-equiv="Feature-Policy" content="xr-spatial-tracking *">
     <style>
         #coordinates {
             position: absolute;
@@ -24,7 +25,7 @@
     <div id="coordinates">Waiting for hand tracking...</div>
 
     <!-- A-Frame Scene -->
-    <a-scene xr-mode="immersive-vr" embedded>
+    <a-scene xr-mode="immersive-vr" embedded vr-mode-ui="enabled: true">
         <!-- カメラ -->
         <a-entity camera position="0 1.6 0" wasd-controls-enabled="false"></a-entity>
     </a-scene>
