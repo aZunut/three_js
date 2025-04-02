@@ -2,125 +2,86 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Three.js Hand Tracking</title>
+    <title>Hand Tracking with A-Frame and Three.js</title>
+    <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
+    <script src="https://threejs.org/build/three.js"></script>
     <style>
-        body { margin: 0; }
-        canvas { display: block; }
         #coordinates {
-            position: absolute;
-            top: 50px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            padding: 8px;
-            border-radius: 5px;
-            font-family: monospace;
-            max-height: 300px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-        }
-        #startButton {
             position: absolute;
             top: 10px;
             left: 10px;
-            background-color: #007bff;
+            background: rgba(0, 0, 0, 0.5);
             color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
+            padding: 10px;
+            font-family: monospace;
+            max-width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
         }
     </style>
-    <script src="https://threejs.org/build/three.js"></script>
 </head>
 <body>
-    <button id="startButton">VRを開始</button>
-    <div id="coordinates">Waiting for VR...</div>
+    <div id="coordinates">Waiting for hand tracking...</div>
+
+    <!-- A-Frame Scene -->
+    <a-scene xr-mode="immersive-vr" embedded>
+        <!-- カメラ -->
+        <a-entity camera position="0 1.6 0" wasd-controls-enabled="false"></a-entity>
+    </a-scene>
+
     <script>
-        // 座標表示用の要素
         const coordDisplay = document.getElementById('coordinates');
-        const startButton = document.getElementById('startButton');
+        const sceneEl = document.querySelector('a-scene');
 
-        // シーン、カメラ、レンダラーの初期化
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.xr.enabled = true;
-        document.body.appendChild(renderer.domElement);
+        // ハンドトラッキングを有効化
+        if (navigator.xr) {
+            navigator.xr.requestSession('immersive-vr', {
+                requiredFeatures: ['hand-tracking', 'local-floor']
+            }).then((session) => {
+                // A-FrameのVRセッションとしてセット
+                sceneEl.renderer.xr.setSession(session);
+                coordDisplay.textContent = 'Hand tracking started...';
 
-        // 手の関節ポイントのマテリアルとジオメトリ
-        const jointGeometry = new THREE.SphereGeometry(0.01, 10, 10);
-        const jointMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+                session.addEventListener('inputsourceschange', (event) => {
+                    event.added.forEach((inputSource) => {
+                        if (inputSource.hand) {
+                            coordDisplay.textContent = 'Hand detected!';
+                        }
+                    });
+                });
 
-        // ハンドジョイントを格納するオブジェクト
-        const handJoints = {};
-
-        // ハンドトラッキングデータを処理
-        function handleHands(frame) {
-            const referenceSpace = renderer.xr.getReferenceSpace();
-            const session = renderer.xr.getSession();
-            let coordText = '';
-
-            // 両手を処理
-            for (const inputSource of session.inputSources) {
-                if (inputSource.hand) {
-                    coordText += `Hand: ${inputSource.handedness}\n`;
-
-                    for (const [jointName, joint] of inputSource.hand.entries()) {
-                        if (joint && joint.transform) {
-                            const pos = joint.transform.position;
-
-                            // ジョイントが存在しなければ作成
-                            if (!handJoints[jointName]) {
-                                const jointMesh = new THREE.Mesh(jointGeometry, jointMaterial);
-                                scene.add(jointMesh);
-                                handJoints[jointName] = jointMesh;
+                // ハンドトラッキング座標取得と表示
+                function handleHands(frame) {
+                    let coordText = '';
+                    for (const inputSource of session.inputSources) {
+                        if (inputSource.hand) {
+                            coordText += `Hand: ${inputSource.handedness}\n`;
+                            for (const [jointName, joint] of inputSource.hand.entries()) {
+                                if (joint && joint.transform) {
+                                    const pos = joint.transform.position;
+                                    coordText += `${jointName}: (${pos.x.toFixed(3)}, ${pos.y.toFixed(3)}, ${pos.z.toFixed(3)})\n`;
+                                }
                             }
-
-                            // 座標を更新
-                            const jointMesh = handJoints[jointName];
-                            jointMesh.position.set(pos.x, pos.y, pos.z);
-
-                            // 座標をテキストとして表示
-                            coordText += `${jointName}: (${pos.x.toFixed(3)}, ${pos.y.toFixed(3)}, ${pos.z.toFixed(3)})\n`;
+                            coordText += '\n';
                         }
                     }
-                    coordText += '\n';
+                    coordDisplay.textContent = coordText;
                 }
-            }
 
-            // テキスト要素に反映
-            coordDisplay.textContent = coordText;
-        }
-
-        // アニメーションループ
-        function animate() {
-            renderer.setAnimationLoop((timestamp, frame) => {
-                if (frame) handleHands(frame);
-                renderer.render(scene, camera);
-            });
-        }
-
-        // VRセッション開始処理
-        async function startVR() {
-            try {
-                const session = await navigator.xr.requestSession('immersive-vr', { requiredFeatures: ['hands'] });
-                renderer.xr.setSession(session);
-                startButton.style.display = 'none';
-                coordDisplay.textContent = 'VRモード開始中...';
+                // レンダリングループ
+                function animate() {
+                    const frame = session.requestAnimationFrame((time, frame) => {
+                        handleHands(frame);
+                        animate();
+                    });
+                }
                 animate();
-            } catch (err) {
-                coordDisplay.textContent = `VR開始エラー: ${err.message}`;
-            }
+            }).catch((err) => {
+                coordDisplay.textContent = `Error: ${err.message}`;
+            });
+        } else {
+            coordDisplay.textContent = 'WebXR not supported on this device.';
         }
-
-        // ボタンクリックでVRを開始
-        startButton.addEventListener('click', startVR);
-
-        // カメラ位置を調整
-        camera.position.set(0, 1.6, 0);
     </script>
 </body>
 </html>
