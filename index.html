@@ -1,80 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Hand Tracking with A-Frame and Three.js</title>
-    <script src="https://aframe.io/releases/1.4.1/aframe.min.js"></script>
-    <script src="https://threejs.org/build/three.js"></script>
-    <meta http-equiv="Feature-Policy" content="xr-spatial-tracking *">
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
 </head>
 <body>
-    <!-- A-Frame Scene -->
-    <a-scene vr-mode-ui="enabled: true" renderer="antialias: true">
-        <!-- カメラ -->
-        <a-entity camera position="0 1.6 0" wasd-controls-enabled="false"></a-entity>
-        <!-- 座標表示 -->
-        <a-entity id="coordinates" position="0 0 -3" text="value: No hand data; color: yellow;"></a-entity>
-    </a-scene>
+  <a-scene>
+    <!-- カメラ -->
+    <a-entity camera look-controls position="0 1.6 0"></a-entity>
+
+    <!-- 手のトラッキング -->
+    <a-entity hand-tracking-controls="hand: right"></a-entity>
+
+    <!-- 座標表示 -->
+    <a-entity id="finger-text" text="value: Loading...; color: yellow;" position="0 2 -3"></a-entity>
 
     <script>
-        const coordDisplay = document.getElementById('coordinates');
-        const sceneEl = document.querySelector('a-scene');
-        // 座標テキストの更新関数
-        function updateText(text) {
-            let handText = "";
-            handText.setAttribute('coordinates', text);
+      AFRAME.registerComponent('update-finger-position', {
+        tick: function () {
+          const hand = document.querySelector('[hand-tracking-controls]');
+          if (hand && hand.object3D) {
+            const finger = hand.object3D.getObjectByName('index-finger-tip');
+            if (finger) {
+              const pos = finger.getWorldPosition(new THREE.Vector3());
+              const textEntity = document.getElementById('finger-text');
+              textEntity.setAttribute('text', `value: X: ${pos.x.toFixed(3)} Y: ${pos.y.toFixed(3)} Z: ${pos.z.toFixed(3)}; color: yellow;`);
+            }
+          }
         }
-        // ハンドトラッキングを有効化
-        if (navigator.xr) {
-            navigator.xr.requestSession('immersive-vr', {
-                requiredFeatures: ['hand-tracking', 'local-floor']
-            }).then((session) => {
-                // A-FrameのVRセッションとしてセット
-                sceneEl.renderer.xr.setSession(session);
-                updateText('Hand tracking started...');
-
-                session.addEventListener('inputsourceschange', (event) => {
-                    event.added.forEach((inputSource) => {
-                        if (inputSource.hand) {
-                            updateText('Hand detected!');
-                        }
-                    });
-                });
-
-                // ハンドトラッキング座標取得と表示
-                function handleHands(frame) {
-                    let coordText = '';
-                    for (const inputSource of session.inputSources) {
-                        if (inputSource.hand) {
-                            coordText += `Hand: ${inputSource.handedness}\n`;
-                            for (const [jointName, joint] of inputSource.hand.entries()) {
-                                if (joint && joint.transform) {
-                                    const pos = joint.transform.position;
-                                    coordText += `${jointName}: (${pos.x.toFixed(3)}, ${pos.y.toFixed(3)}, ${pos.z.toFixed(3)})\n`;
-                                }
-                            }
-                            coordText += '\n';
-                        }
-                    }
-                    updateText(coordText);
-                }
-
-                // レンダリングループ
-                function animate() {
-                    const frame = session.requestAnimationFrame((time, frame) => {
-                        handleHands(frame);
-                        animate();
-                    });
-                }
-                animate();
-            }).catch((err) => {
-                // coordDisplay.textContent = `Error: ${err.message}`;
-                updateText(`Error: ${err.message}`)
-            });
-        } else {
-            // coordDisplay.textContent = 'WebXR not supported on this device.';
-            updateText('WebXR not supported on this device.')
-        }
+      });
     </script>
+
+    <!-- 更新コンポーネント適用 -->
+    <a-entity update-finger-position></a-entity>
+  </a-scene>
 </body>
 </html>
