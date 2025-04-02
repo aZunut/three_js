@@ -8,7 +8,7 @@
         canvas { display: block; }
         #coordinates {
             position: absolute;
-            top: 10px;
+            top: 50px;
             left: 10px;
             background: rgba(0, 0, 0, 0.5);
             color: white;
@@ -19,14 +19,28 @@
             overflow-y: auto;
             white-space: pre-wrap;
         }
+        #startButton {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
     </style>
     <script src="https://threejs.org/build/three.js"></script>
 </head>
 <body>
-    <div id="coordinates">Loading hand coordinates...</div>
+    <button id="startButton">VRを開始</button>
+    <div id="coordinates">Waiting for VR...</div>
     <script>
         // 座標表示用の要素
         const coordDisplay = document.getElementById('coordinates');
+        const startButton = document.getElementById('startButton');
 
         // シーン、カメラ、レンダラーの初期化
         const scene = new THREE.Scene();
@@ -42,11 +56,6 @@
 
         // ハンドジョイントを格納するオブジェクト
         const handJoints = {};
-
-        // XRセッション開始
-        navigator.xr.requestSession('immersive-vr', { requiredFeatures: ['hands'] }).then((session) => {
-            renderer.xr.setSession(session);
-        });
 
         // ハンドトラッキングデータを処理
         function handleHands(frame) {
@@ -94,9 +103,24 @@
             });
         }
 
+        // VRセッション開始処理
+        async function startVR() {
+            try {
+                const session = await navigator.xr.requestSession('immersive-vr', { requiredFeatures: ['hands'] });
+                renderer.xr.setSession(session);
+                startButton.style.display = 'none';
+                coordDisplay.textContent = 'VRモード開始中...';
+                animate();
+            } catch (err) {
+                coordDisplay.textContent = `VR開始エラー: ${err.message}`;
+            }
+        }
+
+        // ボタンクリックでVRを開始
+        startButton.addEventListener('click', startVR);
+
         // カメラ位置を調整
         camera.position.set(0, 1.6, 0);
-        animate();
     </script>
 </body>
 </html>
