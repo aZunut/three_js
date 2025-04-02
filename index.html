@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Three.js Hand Tracking</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+        #coordinates {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+    <script src="https://threejs.org/build/three.js"></script>
+</head>
+<body>
+    <div id="coordinates">Loading hand coordinates...</div>
+    <script>
+        // 座標表示用の要素
+        const coordDisplay = document.getElementById('coordinates');
+
+        // シーン、カメラ、レンダラーの初期化
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.xr.enabled = true;
+        document.body.appendChild(renderer.domElement);
+
+        // 手の関節ポイントのマテリアルとジオメトリ
+        const jointGeometry = new THREE.SphereGeometry(0.01, 10, 10);
+        const jointMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+
+        // ハンドジョイントを格納するオブジェクト
+        const handJoints = {};
+
+        // XRセッション開始
+        navigator.xr.requestSession('immersive-vr', { requiredFeatures: ['hands'] }).then((session) => {
+            renderer.xr.setSession(session);
+        });
+
+        // ハンドトラッキングデータを処理
+        function handleHands(frame) {
+            const referenceSpace = renderer.xr.getReferenceSpace();
+            const session = renderer.xr.getSession();
+            let coordText = '';
+
+            // 両手を処理
+            for (const inputSource of session.inputSources) {
+                if (inputSource.hand) {
+                    coordText += `Hand: ${inputSource.handedness}\n`;
+
+                    for (const [jointName, joint] of inputSource.hand.entries()) {
+                        if (joint && joint.transform) {
+                            const pos = joint.transform.position;
+
+                            // ジョイントが存在しなければ作成
+                            if (!handJoints[jointName]) {
+                                const jointMesh = new THREE.Mesh(jointGeometry, jointMaterial);
+                                scene.add(jointMesh);
+                                handJoints[jointName] = jointMesh;
+                            }
+
+                            // 座標を更新
+                            const jointMesh = handJoints[jointName];
+                            jointMesh.position.set(pos.x, pos.y, pos.z);
+
+                            // 座標をテキストとして表示
+                            coordText += `${jointName}: (${pos.x.toFixed(3)}, ${pos.y.toFixed(3)}, ${pos.z.toFixed(3)})\n`;
+                        }
+                    }
+                    coordText += '\n';
+                }
+            }
+
+            // テキスト要素に反映
+            coordDisplay.textContent = coordText;
+        }
+
+        // アニメーションループ
+        function animate() {
+            renderer.setAnimationLoop((timestamp, frame) => {
+                if (frame) handleHands(frame);
+                renderer.render(scene, camera);
+            });
+        }
+
+        // カメラ位置を調整
+        camera.position.set(0, 1.6, 0);
+        animate();
+    </script>
+</body>
+</html>
