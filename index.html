@@ -16,13 +16,14 @@
     <script>
       AFRAME.registerComponent('update-finger-position', {
         tick: function () {
-          const hand = document.querySelector('[hand-tracking-controls]');
+          const hand = document.querySelector('[hand-tracking-controls]'); //あるクラスに一致する最初の要素を探索する
           if (hand && hand.object3D) {
-            const finger = hand.object3D.getObjectByName('index-finger-tip');
+            const finger = hand.object3D.getObjectByName('index-finger-tip'); //Three.js特有の要素、プロパティに一致する文字列を探索する
             if (finger) {
-              const pos = finger.getWorldPosition(new THREE.Vector3());
-              const textEntity = document.getElementById('finger-text');
-              textEntity.setAttribute('text', `value: X: ${pos.x.toFixed(3)} Y: ${pos.y.toFixed(3)} Z: ${pos.z.toFixed(3)}; color: yellow;`);
+              const pos = finger.getWorldPosition(new THREE.Vector3()); //三次元座標の取得
+              const textEntity = document.getElementById('finger-text'); //idプロパティで指定された文字列に一致する要素を探索
+              textEntity.setAttribute('text', `value: X: ${pos.x.toFixed(3)} Y: ${pos.y.toFixed(3)} Z: ${pos.z.toFixed(3)}; color: yellow;`); //変更後のテキストをセット
+              textEntity.setAttribute('position', `${pos.x.toFixed(3)} ${pos.y.toFixed(3)} ${pos.z.toFixed(3)+0.01}`); //変更後のテキストをセット
             }
           }
         }
