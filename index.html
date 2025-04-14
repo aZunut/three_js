@@ -6,7 +6,7 @@
   <script src="https://cdn.rawgit.com/donmccurdy/aframe-physics-system/v4.0.1/dist/aframe-physics-system.min.js"></script>
 </head>
 <body>
-  <a-scene vr-mode-ui="enabled: true enterARButton: true">
+  <a-scene vr-mode-ui="enterARButton: true">
     
     <a-text id="statusText" value="停止中" position="0 2 -0.7" color="yellow"></a-text>
 
@@ -34,8 +34,15 @@
     <a-entity camera look-controls position="0 1.6 0"></a-entity>
 
     <!-- 手のトラッキング -->
-    <a-entity hand-tracking-controls="right-hand: right"></a-entity>
-    <a-entity hand-tracking-controls="left-hand: left"></a-entity>
+    <a-entity hand-tracking-controls="hand: left-hand"
+          super-hands
+          physics-collider
+          collider-check></a-entity>
+
+    <a-entity hand-tracking-controls="hand: right-hand"
+              super-hands
+              physics-collider
+              collider-check></a-entity>
 
     <!-- 座標表示 -->
     <a-entity id="finger-text" text="value: Loading...; color: yellow;" position="0 2 -3"></a-entity>
@@ -75,7 +82,17 @@
                       "pinky-finger-phalanx-intermediate",
                       "pinky-finger-phalanx-distal",
                       "pinky-finger-tip"]; //取得可能な座標点一覧
-
+      document.querySelector('#startButton').addEventListener('click', () => {
+        trigger = true;
+        console.log("計測スタート！");
+        // 必要なら計測開始時の初期化もここで
+      });
+      
+      document.querySelector('#stopButton').addEventListener('click', () => {
+        trigger = false;
+        console.log("計測ストップ！");
+        // 計測データ保存処理もここで呼び出せる
+      });
       AFRAME.registerComponent('update-finger-position', {
         tick: function () {
           const hand = document.querySelector('#right-hand'); //あるクラスに一致する最初の要素を探索する
