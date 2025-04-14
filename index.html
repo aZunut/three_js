@@ -25,6 +25,7 @@
       let second = time_data.getSeconds();
       let filename = "download.csv";
       let trigger = false;
+      let records = []; // 座標記録用配列
       let hand_list = ["wrist",
                       "thumb-metacarpal",
                       "thumb-phalanx-proximal",
@@ -71,7 +72,7 @@
           document.addEventListener('keydown',
           event => {
             let keys = event.key;
-            alert(`${keys}`+'が押されました');
+            console.log(`${keys}`+'が押されました');
             if (keys == 'o'){
              trigger = true;
              time_data = new Date();
@@ -82,6 +83,7 @@
              minute = time_data.getMinutes();
              second = time_date.getSeconds();
              filename = `${year}${month}${day}${hour}${minute}${second}.csv`;
+             records = []; // 新規記録スタート
              let header = "time";
              hand_list.forEach(joint => {
                header += `,${joint}_x,${joint}_y,${joint}_z`;
