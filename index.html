@@ -4,7 +4,7 @@
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
 </head>
 <body>
-  <a-scene vr-mode-ui="enabled: true enterARButton:true">
+  <a-scene embedded vr-mode-ui="enabled: true">
 
     <!-- カメラ -->
     <a-entity camera look-controls position="0 1.6 0"></a-entity>
@@ -68,12 +68,12 @@
 
       AFRAME.registerComponent('recording_axis',{
         init: function(){
-          window.addEventListener('keydown',
+          document.addEventListener('keydown',
           event => {
         let keys = event.key;
                  alert(`${keys}`+'が押されました');
           });
-          if (event.key == 's'){
+          if (event.key == 'o'){
             trigger = true;
             time_data = new Date();
             year = time_data.getFullYear();
@@ -89,7 +89,7 @@
             });
             records.push(header);
           }
-          else if (event.key == 'e'){
+          else if (event.key == 'p'){
             trigger = false;
             const csvContent = records.join("\n");
             const blob = new Blob([csvContent], { type: "text/csv" });
