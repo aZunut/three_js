@@ -81,9 +81,9 @@
              day = time_data.getDate();
              hour = time_data.getHours();
              minute = time_data.getMinutes();
-             second = time_date.getSeconds();
+             second = time_data.getSeconds();
              filename = `${year}${month}${day}${hour}${minute}${second}.csv`;
-             records = []; // 新規記録スタート
+             records.length = 0; // 新規記録スタート
              let header = "time";
              hand_list.forEach(joint => {
                header += `,${joint}_x,${joint}_y,${joint}_z`;
