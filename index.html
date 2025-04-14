@@ -4,7 +4,7 @@
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
 </head>
 <body>
-  <a-scene embedded vr-mode-ui="enabled: true">
+  <a-scene xr-mode-ui="true">
 
     <!-- カメラ -->
     <a-entity camera look-controls position="0 1.6 0"></a-entity>
@@ -126,6 +126,7 @@
 
     <!-- 更新コンポーネント適用 -->
     <a-entity update-finger-position></a-entity>
+    <a-entity recording_axis></a-entity>
   </a-scene>
 </body>
 </html>
