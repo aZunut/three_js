@@ -70,35 +70,35 @@
         init: function(){
           document.addEventListener('keydown',
           event => {
-        let keys = event.key;
-                 alert(`${keys}`+'が押されました');
-                 if (event.key == 'o'){
-                  trigger = true;
-                  time_data = new Date();
-                  year = time_data.getFullYear();
-                  month = time_data.getMonth()+1;
-                  day = time_data.getDate();
-                  hour = time_data.getHours();
-                  minute = time_data.getMinutes();
-                  second = time_date.getSeconds();
-                  filename = `${year}${month}${day}${hour}${minute}${second}.csv`;
-                  let header = "time";
-                  hand_list.forEach(joint => {
-                    header += `,${joint}_x,${joint}_y,${joint}_z`;
-                  });
-                  records.push(header);
-                }
-                else if (event.key == 'p'){
-                  trigger = false;
-                  const csvContent = records.join("\n");
-                  const blob = new Blob([csvContent], { type: "text/csv" });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = filename;
-                  a.click();
-                  URL.revokeObjectURL(url);
-                }
+            let keys = event.key;
+            alert(`${keys}`+'が押されました');
+            if (keys == 'o'){
+             trigger = true;
+             time_data = new Date();
+             year = time_data.getFullYear();
+             month = time_data.getMonth()+1;
+             day = time_data.getDate();
+             hour = time_data.getHours();
+             minute = time_data.getMinutes();
+             second = time_date.getSeconds();
+             filename = `${year}${month}${day}${hour}${minute}${second}.csv`;
+             let header = "time";
+             hand_list.forEach(joint => {
+               header += `,${joint}_x,${joint}_y,${joint}_z`;
+             });
+             records.push(header);
+           }
+           else if (keys == 'p'){
+             trigger = false;
+             const csvContent = records.join("\n");
+             const blob = new Blob([csvContent], { type: "text/csv" });
+             const url = URL.createObjectURL(blob);
+             const a = document.createElement("a");
+             a.href = url;
+             a.download = filename;
+             a.click();
+             URL.revokeObjectURL(url);
+           }
           });
           
         },
