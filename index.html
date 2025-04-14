@@ -2,15 +2,50 @@
 <html>
 <head>
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+  <script src="https://unpkg.com/aframe-super-hands-component/dist/aframe-super-hands-component.min.js"></script>
+  <script src="https://cdn.rawgit.com/donmccurdy/aframe-physics-system/v4.0.1/dist/aframe-physics-system.min.js"></script>
 </head>
 <body>
-  <a-scene vr-mode-ui="enabled: true">
+  <a-scene vr-mode-ui="enabled: true" renderer="antialias: true" physics="gravity: 0 -9.8 0" embedded>
+    <a-box id="startButton" 
+       position="-0.3 1.5 -1" 
+       depth="0.1" height="0.2" width="0.6"
+       color="#4CAF50"
+       event-set__enter="_event: click; _target: #statusText; text.value: 計測中！"
+       class="clickable">
+      <a-text value="計測開始" align="center" color="#fff" position="0 0 0.06"></a-text>
+    </a-box>
+  
+    <a-box id="stopButton" 
+       position="0.5 1.5 -1" 
+       depth="0.1" height="0.2" width="0.6"
+       color="#F44336"
+       event-set__enter="_event: click; _target: #statusText; text.value: 停止中"
+       class="clickable">
+      <a-text value="計測終了" align="center" color="#fff" position="0 0 0.06"></a-text>
+    </a-box>
+    
+    <a-text id="statusText" value="停止中" position="0 2 -1" color="yellow"></a-text>
 
     <!-- カメラ -->
-    <a-entity camera look-controls position="0 1.6 0"></a-entity>
+    <a-entity camera look-controls position="0 1.6 0">
+      <a-entity cursor="fuse: true; fuseTimeout: 500"
+                position="0 0 -1"
+                geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+                material="color: cyan; shader: flat">
+      </a-entity>
+    </a-entity>
 
     <!-- 手のトラッキング -->
-    <a-entity hand-tracking-controls="hand: right"></a-entity>
+    <a-entity hand-tracking-controls="hand: left"
+          super-hands
+          physics-collider
+          collider-check></a-entity>
+
+    <a-entity hand-tracking-controls="hand: right"
+          super-hands
+          physics-collider
+          collider-check></a-entity> 
 
     <!-- 座標表示 -->
     <a-entity id="finger-text" text="value: Loading...; color: yellow;" position="0 2 -3"></a-entity>
@@ -50,6 +85,18 @@
                       "pinky-finger-phalanx-intermediate",
                       "pinky-finger-phalanx-distal",
                       "pinky-finger-tip"]; //取得可能な座標点一覧
+
+      document.querySelector('#startButton').addEventListener('click', () => {
+        trigger = true;
+        console.log("計測スタート！");
+        // 必要なら計測開始時の初期化もここで
+      });
+      
+      document.querySelector('#stopButton').addEventListener('click', () => {
+        trigger = false;
+        console.log("計測ストップ！");
+        // 計測データ保存処理もここで呼び出せる
+      });
 
       AFRAME.registerComponent('update-finger-position', {
         tick: function () {
