@@ -67,97 +67,98 @@
         }
       });
 
-      <!-- AFRAME.registerComponent('recording_axis',{
-        init: function(){
-          window.addEventListener('keydown',
-          event => {
-        let keys = event.key;
-                 alert(`${keys}`+'が押されました');
-          });
-          if (event.key == 's'){
-            trigger = true;
-            time_data = new Date();
-            year = time_data.getFullYear();
-            month = time_data.getMonth()+1;
-            day = time_data.getDate();
-            hour = time_data.getHours();
-            minute = time_data.getMinutes();
-            second = time_date.getSeconds();
-            filename = `${year}${month}${day}${hour}${minute}${second}.csv`;
-            let header = "time";
-            hand_list.forEach(joint => {
-              header += `,${joint}_x,${joint}_y,${joint}_z`;
-            });
-            records.push(header);
-          }
-          else if (event.key == 'e'){
-            trigger = false;
-            const csvContent = records.join("\n");
-            const blob = new Blob([csvContent], { type: "text/csv" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = filename;
-            a.click();
-            URL.revokeObjectURL(url);
-          }
-        },
-        tick: function(){
-          if (controller && controller.components['oculus-touch-controls'].controller) {
-            const gamepad = controller.components['oculus-touch-controls'].controller;
-        
-            if (gamepad.buttons[1].pressed && !trigger) {
-              // Xボタン押した → 記録開始
-              trigger = true;
-              const startTime = new Date();
-              filename = `${startTime.getFullYear()}${startTime.getMonth()+1}${startTime.getDate()}${startTime.getHours()}${startTime.getMinutes()}${startTime.getSeconds()}.csv`;
-              records = [];
-        
-              // ヘッダー作成
-              let header = "time";
-              hand_list.forEach(joint => {
-                header += `,${joint}_x,${joint}_y,${joint}_z`;
-              });
-              header += ",controller_x,controller_y,controller_z,controller_rx,controller_ry,controller_rz,trigger_pressed,grip_pressed,stick_x,stick_y";
-              records.push(header);
-        
-              console.log("記録開始！");
-            }
-        
-            if (gamepad.buttons[3].pressed && trigger) {
-              // Yボタン押した → 記録停止＆保存
-              trigger = false;
-              const csvContent = records.join("\n");
-              const blob = new Blob([csvContent], { type: "text/csv" });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = filename;
-              a.click();
-              URL.revokeObjectURL(url);
-        
-              console.log("記録終了＆保存！");
-            }
-          }
-        
-          // 記録処理
-          if (trigger) {
-            // ハンド座標記録
-            if (hand && hand.object3D) {
-              hand_list.forEach(jointName => {
-                const joint = hand.object3D.getObjectByName(jointName);
-                if (joint) {
-                  const pos = joint.getWorldPosition(new THREE.Vector3());
-                  row += `,${pos.x.toFixed(5)},${pos.y.toFixed(5)},${pos.z.toFixed(5)}`;
-                } else {
-                  row += `,NaN,NaN,NaN`;
-                }
-              });
-            }
-            records.push(row);
-            }
-          }
-        }); -->
+      //<!-- AFRAME.registerComponent('recording_axis',{
+      //  init: function(){
+      //    window.addEventListener('keydown',
+      //    event => {
+      //  let keys = event.key;
+      //           alert(`${keys}`+'が押されました');
+      //    });
+      //    if (event.key == 's'){
+      //      trigger = true;
+      //      time_data = new Date();
+      //      year = time_data.getFullYear();
+      //      month = time_data.getMonth()+1;
+      //      day = time_data.getDate();
+      //      hour = time_data.getHours();
+      //      minute = time_data.getMinutes();
+      //      second = time_date.getSeconds();
+      //      filename = `${year}${month}${day}${hour}${minute}${second}.csv`;
+      //      let header = "time";
+      //      hand_list.forEach(joint => {
+      //        header += `,${joint}_x,${joint}_y,${joint}_z`;
+      //      });
+      //      records.push(header);
+      //    }
+      //    else if (event.key == 'e'){
+      //      trigger = false;
+      //      const csvContent = records.join("\n");
+      //      const blob = new Blob([csvContent], { type: "text/csv" });
+      //      const url = URL.createObjectURL(blob);
+      //      const a = document.createElement("a");
+      //      a.href = url;
+      //      a.download = filename;
+      //      a.click();
+      //      URL.revokeObjectURL(url);
+      //    }
+      //  },
+      //  tick: function(){
+      //    if (controller && controller.components['oculus-touch-controls'].controller) {
+      //      const gamepad = controller.components['oculus-touch-controls'].controller;
+      //  
+      //      if (gamepad.buttons[1].pressed && !trigger) {
+      //        // Xボタン押した → 記録開始
+      //        trigger = true;
+      //        const startTime = new Date();
+      //        filename = `${startTime.getFullYear()}${startTime.getMonth()+1}${startTime.getDate()}${startTime.getHours()}${startTime.getMinutes()}${startTime.getSeconds()}.csv`;
+      //        records = [];
+      //  
+      //        // ヘッダー作成
+      //        let header = "time";
+      //        hand_list.forEach(joint => {
+      //          header += `,${joint}_x,${joint}_y,${joint}_z`;
+      //        });
+      //        header += ",controller_x,controller_y,controller_z,controller_rx,controller_ry,controller_rz,trigger_pressed,grip_pressed,stick_x,stick_y";
+      //        records.push(header);
+      //  
+      //        console.log("記録開始！");
+      //      }
+      //  
+      //      if (gamepad.buttons[3].pressed && trigger) {
+      //        // Yボタン押した → 記録停止＆保存
+      //        trigger = false;
+      //        const csvContent = records.join("\n");
+      //        const blob = new Blob([csvContent], { type: "text/csv" });
+      //        const url = URL.createObjectURL(blob);
+      //        const a = document.createElement("a");
+      //        a.href = url;
+      //        a.download = filename;
+      //        a.click();
+      //        URL.revokeObjectURL(url);
+      //  
+      //        console.log("記録終了＆保存！");
+      //      }
+      //    }
+      //  
+      //    // 記録処理
+      //    if (trigger) {
+      //      // ハンド座標記録
+      //      if (hand && hand.object3D) {
+      //        hand_list.forEach(jointName => {
+      //          const joint = hand.object3D.getObjectByName(jointName);
+      //          if (joint) {
+      //            const pos = joint.getWorldPosition(new THREE.Vector3());
+      //            row += `,${pos.x.toFixed(5)},${pos.y.toFixed(5)},${pos.z.toFixed(5)}`;
+      //          } else {
+      //            row += `,NaN,NaN,NaN`;
+      //          }
+      //        });
+      //      }
+      //      records.push(row);
+      //      }
+      //    }
+      //  }); -->
+      
     </script>
 
     <!-- 更新コンポーネント適用 -->
